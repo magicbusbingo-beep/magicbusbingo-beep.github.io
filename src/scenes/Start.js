@@ -5,6 +5,7 @@ export class Start extends Phaser.Scene {
     }
 
     preload() {
+        var role;
         this.load.image('background', 'assets/black.png');
         this.load.image('logo', 'assets/logo.png');
         this.load.image('dust','assets/dust.png')
