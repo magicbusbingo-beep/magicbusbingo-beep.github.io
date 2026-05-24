@@ -95,6 +95,7 @@ export class Start extends Phaser.Scene {
                 this.copyfx.play()
                 console.log(this.hostButton.state)
                 role = "host"
+                alert(peer.id)
                 navigator.clipboard.writeText(peer.id)
             }
             
