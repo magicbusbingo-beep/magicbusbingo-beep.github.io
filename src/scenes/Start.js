@@ -37,10 +37,11 @@ export class Start extends Phaser.Scene {
         this.copyfx = this.sound.add('copy')
 
         peer.on('connection', function(c){
+            conn = c
             this.copyfx.play
             this.add.image(100,100,'heart',{scale:.1});
                 connections.push(c)
-                this.conn.on('open', function(){
+                conn.on('open', function(){
                     connections.push(c)
                     this.copyfx.play
                 })
