@@ -62,14 +62,14 @@
             })
 
             function connect(id){
-                this.conn = peer.connect(id);
+                conn = peer.connect(id);
 
                 //open event called when connection is created
-                this.conn.on('open', function(){
+                conn.on('open', function(c){
                     console.log("connected!")
                     connections.push(c)
                     //recieve message - sender side
-                    this.conn.on('data', function(data){
+                    conn.on('data', function(data){
                         //process data you recieve
                     })
                 })
