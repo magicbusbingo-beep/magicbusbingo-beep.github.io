@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Pigeon Simulator!</title>
+<link rel="icon" type="image/png" href="assets/pidgicon.png">
+<script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script>
+<script src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js" ></script>
+<body ondragstart="return false;" ondrop= "return false;">
+<ul id="messages">
+
+</ul>
+<div id="cover" style="display: block; position: absolute;">
+<source src="Virs.wav" id="virus" type="audio/wav"></source>
+<img id="userInput" src="assets/userinteract.png" onclick="FirstInput()" class="cursorGrabby"></img>
+<img id="redHeart" src="assets/redHeart.png" hidden="true"></img>
+<img id="flag" src="assets/flag.png" hidden="true"></img>
+<img class = "button hidden" id="host" src= "assets/HOSTA.png" onmouseover = "src='assets/HOSTB.png'" onmouseout = "src='assets/HOSTA.png'" onclick="ToHostMenu()"></img>
+<img class = "button hidden" id="join" src= "assets/JOINA.png" onmouseover = "src='assets/JOINB.png'" onmouseout = "src='assets/JOINA.png'" onclick="ToJoinMenu()"></img>
+<img class = "button hidden" id="virs" src= "assets/VIRSA.png" onmouseover = "src='assets/VIRSB.png'" onmouseout = "src='assets/VIRSA.png'" onclick="Virus();"></img>
+<input type="text" placeholder = "Paste Join Code here!" class = "button hidden" id="friendId"></input> 
+<img class = "button hidden" id="return" src= "assets/greenBack.png" onmouseover = "src='assets/greenBack.png'" onmouseout = "src='assets/greenBack.png'" onclick="BackToMenu()"></img>
+<img class = "button hidden" id="copy" src= "assets/COPY.png"  onclick="CodeCopied()"></img>
+<img class = "button hidden" id="connect" src= "assets/CONNECT.png"  onclick="Connect()"></img>
+<canvas id="Main-Screen" width="640" height="480" style="border:1px solid #000000; " onclick = requestAnimationFrame(ControlLoop)>
+</canvas>
+<div id = "menu">
+<h1>Welcome To</h1>
+<h1>Pigeon Simulator!!</h1>
+</div>
+</div>
+</body>
+<style>
+
+.cursorGrabby{
+  cursor: pointer;
+}
+#cover{
+  top: 50%;
+  left: 50%;
+  
+  transform: translate(-50%, -50%); /* Shifts the canvas back by half its own width/height */
+}
+.hidden{
+ display: none;
+}
+.button{
+  cursor: pointer;
+  z-index: 103;
+  position: absolute;
+  transform: scale(1, 1) translate(-50%, -50%); /	* Shifts the canvas back by half its own width/height */
+}
+#return{
+  top: 88%;
+  left: 26%;
+}
+#friendId{
+  cursor: text;
+  font-family: "Lucida Console", "Courier New", monospace;
+  top: 48%;
+  left: 50%;
+  font-size: 28px;
+  text-color: rgb(255,3,4);
+  background-color: transparent;
+  border: double 5px;
+  border-width: 12px;
+}
+#copy{
+  top: 88%;
+  left: 74%;
+}
+#connect{
+  top: 88%;
+  left: 74%;
+}
+#host{
+  top: 35%;
+  left: 50%;
+
+}
+#join{
+  top: 60%;
+  left: 50%;
+}
+#virs{
+  top: 85%;
+  left: 50%;
+}
+body{
+	background-image: url(assets/pigeon.webp);
+	background-size: 30% auto;
+	overflow: hidden;
+	animation: moveBackground 20s linear infinite;
+}
+@keyframes moveBackground {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -1000px 500px; /* Moves the image 1000px to the left */
+  }
+}
+h1{
+	text-align: center;
+}
+canvas {
+  position: relative;
+}
+#menu {
+  position: absolute;
+	z-index: 94;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%); /	* Shifts the canvas back by half its own width/height */
+}
+#userInput {
+	z-index: 99;
+  top: 50%;
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%); /* Shifts the canvas back by half its own width/height */
+}
+</style>
+<script>
+var state = "awaitingInput"
+const SoundLibrary = {
+	'Music' : {
+		'menu': new Audio('assets/mystical.mp3')
+	},
+	'Fx': {
+		'virus': new Audio('assets/virs.wav'),
+		'save': new Audio('assets/save.wav')
+	}
+}
+function ToHostMenu(){
+	document.getElementById("userInput").src = "assets/hostingmenu.png"
+	document.getElementById("host").classList.add('hidden')
+	document.getElementById("virs").classList.add('hidden')
+	document.getElementById("join").classList.add('hidden')
+	document.getElementById("return").classList.remove('hidden');
+	document.getElementById("copy").classList.remove('hidden');
+	document.getElementById("copy").src = "assets/copy.png"
+}
+function ToJoinMenu(){
+	document.getElementById("userInput").src = "assets/JoiningMenu.png"
+	document.getElementById("host").classList.add('hidden')
+	document.getElementById("virs").classList.add('hidden')
+	document.getElementById("join").classList.add('hidden')
+	document.getElementById("friendId").classList.remove('hidden')
+	document.getElementById("return").classList.remove('hidden');
+	document.getElementById("connect").classList.remove('hidden');
+}
+
+function CodeCopied(){
+		SoundLibrary.Fx.save.play();
+		document.getElementById("userInput").src = "assets/hosting-waiting.png"
+		if(document.getElementById('copy').getAttribute('src')=="assets/copy.png"){
+			navigator.clipboard.writeText(peer.id);
+			console.log("You should be getting a copy!");
+		}
+		document.getElementById("copy").src = "assets/BEGIN.png"
+}
+function FirstInput(){
+	if(document.getElementById("userInput").getAttribute('src')=="assets/userinteract.png"){
+		document.getElementById("userInput").classList.remove('cursorGrabby')
+		SoundLibrary.Music.menu.loop = true;
+		SoundLibrary.Music.menu.play();
+		document.getElementById("userInput").src = "assets/menu1.png"
+		document.getElementById("host").classList.remove('hidden')
+		document.getElementById("join").classList.remove('hidden')
+		document.getElementById("virs").classList.remove('hidden')
+	}
+}
+function BackToMenu(){
+		document.getElementById("userInput").classList.remove('cursorGrabby')
+		document.getElementById("userInput").src = "assets/menu1.png"
+		document.getElementById("host").classList.remove('hidden')
+		document.getElementById("join").classList.remove('hidden')
+		document.getElementById("virs").classList.remove('hidden')
+		document.getElementById("connect").classList.add('hidden');
+		document.getElementById("return").classList.add('hidden')
+		document.getElementById("friendId").classList.add('hidden')
+		document.getElementById("copy").classList.add('hidden')
+}
+
+function Virus(){
+	SoundLibrary.Fx.virus.play();
+	alert("Suspicious downloads detected!");
+	confirm("AJ5O/JTMN.mal4I50 installed");
+}
+SoundLibrary.Music.menu.playbackRate = .959
+SoundLibrary.Music.menu.preservesPitch = false
+
+const canvas = document.getElementById("Main-Screen")
+const ctx = canvas.getContext("2d")
+
+    peer = new Peer();
+    peer.on('open', function (id) {
+        console.log('Connected to Signaling Server ID : ' + id);
+        // set the input value
+        var peerIDField = document.querySelector("#peerid")
+        //peerIDField.value = id
+    });
+var keys = {}
+var functionLoop = []
+var HostMessagePackage = []
+var HostData = []
+var Peers = []
+flag = document.getElementById('flag')
+ctx.drawImage(flag, canvas.width/2 - flag.width/2, canvas.height/2 - flag.height/2)
+
+
+
+class Player{
+	constructor(x, y){
+		this.x = x
+		this.y = y
+		this.xv = 0
+		this.yv = 0
+		this.id = 'player..'
+		this.img = document.createElement("img");
+		//this.img.src = "assets/redHeart.png"
+		//document.body.appendChild(this.img);
+		//this.img.style.position = "absolute"
+		//ID is the Peerjs ID value
+		this.index = functionLoop.length
+		functionLoop.push(this);
+	}
+	
+	
+	
+	loop(){
+		//$(this.img).offset({top: ( this.y ), left: this.x});
+		this.x+= this.xv
+		this.y+= this.yv
+		this.xv = this.xv*.9
+		this.yv = this.yv*.9
+		this.x = this.x%400
+		this.y = this.y%400
+		ctx.drawImage(document.getElementById('redHeart'), this.x, this.y)
+		if(this.x<0){
+			this.x = this.x+400
+		}
+		if(this.y<0){
+			this.y  = this.y+400
+		}
+		
+			//run keycheck code that controls movement.
+		if(keys[37]){
+			this.xv+=-1
+		}
+		if(keys[39]){
+			this.xv+=1
+		}
+		if(keys[38]){
+			this.yv-=1
+		}
+		if(keys[40]){
+			this.yv+=1
+		}
+	}
+}
+
+class ExternalPlayer{
+	constructor(x, y, id, xv, yv){
+		this.x = x 
+		this.y = y
+		this.xv = xv 
+		this.yv = yv
+		this.id = id
+		//ID is the Peerjs ID value
+		this.index = functionLoop.length
+		let t = 0;
+		let index = 0;
+		for(let i = 0; i<functionLoop.length; i++){
+			console.log(functionLoop.length)
+			
+			if(functionLoop[i].id== id){
+				t+=1
+				index = i
+				//i = functionLoop.length;
+			}else{
+				//this.img = document.createElement("img");
+				//this.img.src = "assets/cyanHeart.png"
+				//document.body.appendChild(this.img);
+				//this.img.style.position = "absolute"
+				//functionLoop.push(this)
+				//i = functionLoop.length;
+			}
+		}
+		if(t == 0){
+				this.img = document.createElement("img");
+				this.img.src = "assets/cyanHeart.png"
+				document.body.appendChild(this.img);
+				this.img.style.position = "absolute"
+				//i = functionLoop.length;
+			functionLoop.push(this);
+		}else{
+				this.img = document.createElement("img");
+				this.img.src = "assets/cyanHeart.png"
+				document.body.appendChild(this.img);
+				this.img.style.position = "absolute"
+				functionLoop[index].img.remove();
+				functionLoop[index] = this
+			
+		}
+	}
+	loop(){
+		this.x = this.x+this.xv
+		this.y = this.y+this.yv
+		this.xv = this.xv*.9
+		this.yv = this.yv*.9
+		$(this.img).offset({top: ( this.y ), left: this.x});
+	}
+}
+
+$(document).keydown(function (e) {
+    keys[e.which] = true;
+});
+$(document).keyup(function (e) {
+    delete keys[e.which];
+});
+
+var conn
+var connections = []
+
+
+
+
+function join() {
+    console.log("Player ID / Code revealed!")
+
+    // when connection is created, handle the event - 
+        // set the input value
+        var peerIDField = document.querySelector("#peerid")
+        peerIDField.value = peer.id
+}
+
+
+function connect() {
+    var fpeerIDField = document.querySelector("#fpeerid")
+    console.log("connecting to " + fpeerIDField.value)
+    conn = peer.connect(fpeerIDField.value);
+	//above opens a connection to the host ID. This code is client-side
+
+    conn.on('open', function () {
+		
+		conn.on("data", function(data){
+			//console.log("Recieved: ", data)
+			Peers = []
+			
+			for(let i = 0; i<data.length; i++){
+				if(data[i].user== peer.id){
+					
+				}else{
+					Peers.push(data[i])
+				}
+				//above tracks all peer players with a single "Peers" array!
+			}
+			
+			for(let i = 0; i<Peers.length; i++){
+					new ExternalPlayer(Peers[i].x, Peers[i].y, Peers[i].user, Peers[i].xv, Peers[i].yv)
+			}
+			let c = Peers
+			
+		})
+    });
+    // open event called when connection gets created. This tells the CLIENT if they have connected properly.
+}
+peer.on('connection', function(dataConnection){
+	console.log("user ", dataConnection.peer, "has connected!")
+	t = 0
+	for(let i = 0; i < connections.length; i++){
+		if(connections[i].peer == dataConnection.peer){
+			t++
+		}
+	}
+	if(t==0){
+		dataConnection.on("data", function(data){
+			
+			
+			console.log("Recieved: ", data, "From user:", dataConnection.peer)
+			HostData.push(data);
+			//SERVER SIDE code for recieving messages! 
+		})
+		connections.push(dataConnection)
+		console.log("list of connections: ", connections);
+		//this code runs SERVER SIDE and detects when a client connects. Then, it adds the connection itself to a list
+	}
+});
+
+
+function sendMessage() {
+    var msg = document.querySelector("#msg")
+    console.log("sending message")
+    // send message at sender or receiver side
+	if(connections.length<1){
+		//above 'if' statement checks whether the user is a HOST or a CLIENT
+		if (conn && conn.open) {
+			conn.send("hola");
+		//   printMsg("Me : " + msg.value)
+		}
+	}else{
+		for(let i = 0; i < connections.length; i++){
+			connections[i].send("hello, I am your host!")
+		}
+	}
+}
+
+
+
+
+function printMsg(msg) {
+    var messages = document.querySelector
+    messages.innerHTML = messages.innerHTML + "<li>" + msg + "</li>"
+}
+
+function ControlLoop(){
+	//SoundLibrary.Music.menu.play();
+	ctx.clearRect(0,0, canvas.width, canvas.height)
+	for (const object in functionLoop){
+		if (functionLoop[object]){
+			functionLoop[object].loop();
+		};
+	};
+	requestAnimationFrame(ControlLoop)
+};
+
+function initialize(){
+	ControlLoop();
+	document.getElementById('mus').play
+}
+function Broadcast(){
+		if(connections.length==0){
+			//above 'if' statement checks whether the user is a HOST or a CLIENT
+			if (conn && conn.open) {
+				conn.send({'x': player.x, 'y': player.y, 'user': peer.id, 'xv': player.xv, 'yv': player.yv});
+			//   printMsg("Me : " + msg.value)
+			}
+		}else{
+			for(let i = 0; i < connections.length; i++){
+					HostData.push({'x': player.x, 'y': player.y, 'user': peer.id, 'xv': player.xv, 'yv': player.yv})
+					connections[i].send(HostData)
+				
+			}
+			Peers = []
+			
+			for(let i = 0; i<HostData.length; i++){
+				if(HostData[i].user== peer.id){
+					
+				}else{
+					Peers.push(HostData[i])
+				}
+				//above tracks all peer players with a single "Peers" array!
+			}
+			
+			for(let i = 0; i<Peers.length; i++){
+					new ExternalPlayer(Peers[i].x, Peers[i].y, Peers[i].user, Peers[i].xv, Peers[i].yv)
+			}
+		}
+		HostData = [];
+		
+	
+};
+var player = new Player(100, 100)
+//requestAnimationFrame(ControlLoop);
+setInterval(Broadcast, 200);
+
+
+</script>
+</html>
