@@ -18,7 +18,7 @@
 <img class = "button hidden" id="virs" src= "assets/VIRSA.png" onmouseover = "src='assets/VIRSB.png'" onmouseout = "src='assets/VIRSA.png'" onclick="Virus();"></img>
 <input type="text" placeholder = "Paste Join Code here!" class = "button hidden" id="friendId"></input> 
 <img class = "button hidden" id="return" src= "assets/greenBack.png" onmouseover = "src='assets/greenBack.png'" onmouseout = "src='assets/greenBack.png'" onclick="BackToMenu()"></img>
-<img class = "button hidden" id="copy" src= "assets/COPYB.png"  onclick="CodeCopied()"></img>
+<img class = "button hidden" id="copy" src= "assets/COPY.png"  onclick="CodeCopied()"></img>
 <img class = "button hidden" id="connect" src= "assets/CONNECT.png"  onclick="Connect()"></img>
 <canvas id="Main-Screen" width="640" height="480" style="border:1px solid #000000; " onclick = requestAnimationFrame(ControlLoop)>
 </canvas>
@@ -137,7 +137,7 @@ function ToHostMenu(){
 	document.getElementById("join").classList.add('hidden')
 	document.getElementById("return").classList.remove('hidden');
 	document.getElementById("copy").classList.remove('hidden');
-	document.getElementById("copy").src = "assets/copy.png"
+	document.getElementById("copy").src = "assets/COPY.png"
 }
 function ToJoinMenu(){
 	document.getElementById("userInput").src = "assets/JoiningMenu.png"
